@@ -372,6 +372,81 @@
       font-size: 0.7rem;
       color: #616a8a;
     }
+
+    /* -------------------------------------
+       📱 모바일 최적화 (max-width: 600px)
+    ------------------------------------- */
+    @media (max-width: 600px) {
+
+      body {
+        padding: 10px;
+      }
+
+      .game-root {
+        padding: 16px;
+        gap: 14px;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+      }
+
+      .story-box {
+        padding: 14px;
+        font-size: 0.9rem;
+      }
+
+      .clue-buttons .btn {
+        flex: 1 1 48%;
+        justify-content: center;
+        padding: 10px 0;
+        font-size: 0.85rem;
+      }
+
+      .clue-output {
+        min-height: 180px;
+        font-size: 0.88rem;
+        padding: 14px;
+      }
+
+      .code-block {
+        font-size: 0.75rem;
+        padding: 10px;
+        overflow-x: auto;
+      }
+
+      .side-panel {
+        padding: 12px;
+        font-size: 0.9rem;
+      }
+
+      .suspect-item {
+        padding: 10px;
+      }
+
+      .suspect-name {
+        font-size: 1rem;
+      }
+
+      .suspect-role {
+        font-size: 0.82rem;
+      }
+
+      .btn-row button {
+        flex: 1;
+        padding: 12px;
+        font-size: 0.9rem;
+      }
+
+      #result-box {
+        padding: 12px;
+        font-size: 0.9rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -379,7 +454,7 @@
 <div class="game-shell">
   <div class="game-root">
 
-    <!-- LEFT -->
+    <!-- LEFT: 스토리 & 단서 -->
     <section class="layout-main">
       <header>
         <h1>
@@ -410,8 +485,8 @@
         </p>
         <p>
           그런데, 공개 수업을 <span class="highlight">하루 앞둔 밤</span>,
-          서버에 있던 <code>ai_core.py</code>가 spooling된 로그만 남기고
-          spooling된 후처럼 spooling 로그만 남기고 spooling된 후처럼 사라져 버렸다.
+          서버에 있던 <code>ai_core.py</code>가 로그 몇 줄만 남기고 spooling된 것처럼
+          <span class="highlight"> spooling 로그만 남기고 spooling된 것처럼</span> 사라져 버렸다.
         </p>
         <p>
           최근 EduPass 안에서는
@@ -442,7 +517,7 @@
       </div>
     </section>
 
-    <!-- RIGHT -->
+    <!-- RIGHT: 용의자 & 결과 -->
     <aside class="side-panel">
       <h2>용의자 목록</h2>
       <p class="hint-text">
@@ -559,8 +634,8 @@
         </div>
 
         <ul class="clue-list">
-          <li>고정 IP 표에 따르면 <strong>192.168.0.24 = 규민(서버 관리자)</strong></li>
-          <li>교육용 AI 핵심 파일 <code>ai_core.py</code>가 이동된 시각(10:34)의 접속 IP도 192.168.0.24</li>
+          <li>규민의 고정 IP는 <strong>192.168.0.24</strong>임이 로그 상단에 명시됨</li>
+          <li>교육용 AI 파일 <code>ai_core.py</code>가 이동된 시각(10:34)의 접속 IP도 192.168.0.24</li>
           <li>그 직전(10:33)에 <code>sudo</code> 명령으로 루트 권한을 활성화한 흔적이 있다.</li>
           <li>근형·민규·재훈은 일반 사용자로, 파일 이동·숨김 관련 기록이 전혀 없다.</li>
         </ul>
