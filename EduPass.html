@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI 탐정 게임 - 사라진 소스 코드의 비밀 (EduPass)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #121828;
+      --accent: #4f8cff;
+      --accent-soft: rgba(79, 140, 255, 0.2);
+      --text: #f5f7ff;
+      --muted: #a5acc4;
+      --danger: #ff5c7a;
+      --success: #4cd964;
+      --border: #1c2438;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", system-ui,
+        sans-serif;
+      background: radial-gradient(circle at top, #1f2a46 0, #050814 55%, #02030a 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .game-shell {
+      width: 100%;
+      max-width: 1100px;
+      background: linear-gradient(135deg, rgba(79, 140, 255, 0.2), transparent);
+      border-radius: 28px;
+      padding: 2px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+    }
+
+    .game-root {
+      border-radius: 26px;
+      background: radial-gradient(circle at top left, #1a2337 0, #050814 60%);
+      padding: 24px 24px 18px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 880px) {
+      .game-root { grid-template-columns: 1fr; }
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.5rem;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 span.logo {
+      display: inline-flex;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #4f8cff);
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #050814;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      font-size: 0.76rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+      background: rgba(10, 15, 30, 0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .layout-main {
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 14px 14px 10px;
+      background: radial-gradient(circle at top left, #1b2236, #050814);
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .scene-header {
+      font-size: 0.9rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .progress-pill {
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(79, 140, 255, 0.6);
+      color: var(--accent);
+    }
+
+    .story-box {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(6, 10, 26, 0.8);
+      padding: 12px 13px;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .story-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(79, 140, 255, 0.22), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .story-box p {
+      position: relative;
+      margin: 4px 0;
+      z-index: 1;
+    }
+
+    .highlight {
+      color: #ffe066;
+      font-weight: 600;
+    }
+
+    .clue-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 6px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(7, 12, 24, 0.9);
+      color: var(--text);
+      font-size: 0.84rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.12s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f8cff, #7b6dff);
+      border-color: transparent;
+      color: #050814;
+      font-weight: 600;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-style: dashed;
+    }
+
+    .btn.active {
+      box-shadow: 0 0 0 1px var(--accent);
+      background: rgba(79, 140, 255, 0.15);
+    }
+
+    .clue-output {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(4, 8, 18, 0.92);
+      padding: 10px 12px;
+      font-size: 0.86rem;
+      min-height: 140px;
+      overflow-y: auto;
+      line-height: 1.45;
+      position: relative;
+    }
+
+    .clue-output h3 {
+      margin-top: 0;
+      font-size: 0.94rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .clue-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+
+    .code-block {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+        Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.8rem;
+      background: rgba(2, 6, 16, 0.9);
+      border-radius: 10px;
+      padding: 8px 9px;
+      border: 1px solid #20263e;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin: 6px 0;
+    }
+
+    .clue-summary {
+      margin-top: 4px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(79, 140, 255, 0.07);
+      border: 1px dashed rgba(79, 140, 255, 0.4);
+      font-size: 0.8rem;
+    }
+
+    .clue-summary strong { color: var(--accent); }
+
+    .clue-list {
+      margin: 6px 0;
+      padding-left: 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .side-panel {
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      background: radial-gradient(circle at top, #181f34, #050814);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .side-panel h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .suspect-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .suspect-item {
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 6px 9px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      background: rgba(9, 13, 29, 0.8);
+      cursor: pointer;
+      transition: 0.12s;
+    }
+
+    .suspect-item:hover {
+      border-color: var(--accent);
+      background: rgba(15, 23, 52, 0.9);
+    }
+
+    .suspect-item input {
+      margin-top: 4px;
+      accent-color: var(--accent);
+    }
+
+    .suspect-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .suspect-role {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .result-box {
+      font-size: 0.84rem;
+      border-radius: 12px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(5, 10, 26, 0.92);
+      min-height: 60px;
+      line-height: 1.4;
+    }
+
+    .result-success {
+      border-color: rgba(76, 217, 100, 0.7);
+      background: rgba(38, 138, 63, 0.12);
+      color: #d0ffe2;
+    }
+
+    .result-fail {
+      border-color: rgba(255, 92, 122, 0.7);
+      background: rgba(188, 42, 84, 0.14);
+      color: #ffe5ef;
+    }
+
+    .hint-text {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    footer {
+      grid-column: 1 / -1;
+      text-align: right;
+      font-size: 0.7rem;
+      color: #616a8a;
+    }
+
+    /* 📱 모바일 최적화 */
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .game-root { padding: 16px; gap: 14px; }
+      h1 { font-size: 1.25rem; }
+      .subtitle { font-size: 0.85rem; }
+      .story-box { padding: 14px; font-size: 0.9rem; }
+      .clue-buttons .btn {
+        flex: 1 1 48%;
+        justify-content: center;
+        padding: 10px 0;
+        font-size: 0.85rem;
+      }
+      .clue-output {
+        min-height: 180px;
+        font-size: 0.88rem;
+        padding: 14px;
+      }
+      .code-block {
+        font-size: 0.75rem;
+        padding: 10px;
+        overflow-x: auto;
+      }
+      .side-panel { padding: 12px; font-size: 0.9rem; }
+      .suspect-item { padding: 10px; }
+      .suspect-name { font-size: 1rem; }
+      .suspect-role { font-size: 0.82rem; }
+      .btn-row button {
+        flex: 1;
+        padding: 12px;
+        font-size: 0.9rem;
+      }
+      #result-box {
+        padding: 12px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-shell">
+  <div class="game-root">
+
+    <!-- LEFT: 스토리 & 단서 -->
+    <section class="layout-main">
+      <header>
+        <h1>
+          <span class="logo">AI</span>
+          사라진 소스 코드의 비밀
+        </h1>
+        <div class="subtitle">
+          가톨릭관동대 컴퓨터교육과 동아리 <strong>EduPass</strong>는
+          <strong>“AI 기반 자기주도 학습 플랫폼”</strong>을 개발 중이다.<br>
+          내일 오전 10시, 강릉·속초 관내 정보 교사들이 모이는
+          <strong>공개 수업 시연</strong>에서 이 플랫폼을 처음 공개할 예정이다.
+        </div>
+        <div class="badge-row">
+          <div class="badge"><span class="badge-dot"></span> 컴퓨터교육과 · AI · 정보보안</div>
+          <div class="badge"><span class="badge-dot"></span> 플레이 시간 약 5–10분</div>
+        </div>
+      </header>
+
+      <div class="scene-header">
+        <span>단서를 모두 본 뒤, 오른쪽에서 범인을 지목하세요.</span>
+        <span class="progress-pill" id="clue-progress">발견한 단서: 0 / 5</span>
+      </div>
+
+      <div class="story-box">
+        <p>
+          이 플랫폼의 핵심은 <span class="highlight">교육용 AI 엔진 <code>ai_core.py</code></span>이다.
+          학생의 풀이 로그를 바탕으로 난이도와 피드백을 자동으로 조절한다.
+        </p>
+        <p>
+          이번 공개 수업의 수업 목표는
+          <span class="highlight">“학생이 AI를 활용해 자신의 문제 풀이 과정을 성찰하고, 오류 유형을 인식하는 것”</span>이다.
+          성취기준에는 <span class="highlight">데이터·알고리즘·인공지능의 원리를 이해하고 정보문제를 해결</span>하는 내용이 포함된다.
+        </p>
+        <p>
+          시연 후에는 <strong>동료장학</strong> 형식으로,
+          AI 활용 수업의 장단점과 <strong>교사-학생 역할 분담</strong>에 대해 함께 논의하기로 했다.
+          이를 위해 EduPass는 <strong>수행평가 루브릭</strong>도 미리 설계해 두었다.
+        </p>
+        <p>
+          그런데, 시연 전날 밤 11시. 서버를 마지막으로 점검하던 순간,
+          <code>ai_core.py</code>가 <span class="highlight">통째로 사라졌다.</span>
+        </p>
+        <p>
+          깃에도 없는 미완성 버전이라, 이 파일이 없으면 내일 수업에서
+          AI 기능을 보여줄 수 없다. 이미 공문은 나갔고,
+          <span class="highlight">정보 교과 교육과정 연구회</span> 선생님들도 온다고 했다…
+        </p>
+        <p>
+          최근 동아리에는 이런 논쟁이 있었다.
+        </p>
+        <ul class="clue-list">
+          <li>“AI 피드백을 세게 넣어서 학습 격차를 줄이자” (규민) – 형성평가·피드백 중시</li>
+          <li>“너무 개입하면 학생 자율성이 떨어진다” (근형) – 자기주도 학습·학습자 주도성 강조</li>
+          <li>“영상이 중심이어야지, 굳이 AI까지…?” (민규) – 멀티미디어 중심 수업 선호</li>
+          <li>“학생 입장에서 UI가 더 중요하다” (재훈) – 학습자 경험(UX)·동기 유발 중시</li>
+        </ul>
+        <p class="highlight">
+          누군가, 자신의 <strong>수업관과 교육 철학</strong>에 맞게 <code>ai_core.py</code>를 고쳐 보려다
+          파일을 다른 위치로 옮긴 것일지도 모른다.
+        </p>
+
+        <p><strong>당신의 미션</strong></p>
+        <ul class="clue-list">
+          <li>5개의 단서를 확인한다. (로그 / 암호 / QR / ChatGPT / DB)</li>
+          <li>먼저 스스로 생각해 본 뒤, 원하면 “해석 보기” 버튼을 눌러 확인한다.</li>
+          <li>“이 단서를 수업에서 어떻게 활용할 수 있을까?”라는 교과교육 관점도 함께 떠올려본다.</li>
+          <li>가장 의심스러운 EduPass 동아리원을 선택한다.</li>
+        </ul>
+
+        <div class="clue-buttons">
+          <button class="btn btn-primary" data-clue="1">🖥 단서 1. 서버 로그</button>
+          <button class="btn" data-clue="2">🔐 단서 2. 암호문</button>
+          <button class="btn" data-clue="3">📱 단서 3. QR 단서</button>
+          <button class="btn btn-ghost" data-clue="4">🤖 단서 4. ChatGPT 로그</button>
+          <button class="btn btn-ghost" data-clue="5">💾 단서 5. DB 로그</button>
+        </div>
+      </div>
+
+      <div class="clue-output" id="clue-output">
+        <h3>☝️ 단서를 선택해 내용을 확인하세요.</h3>
+        <p class="hint-text">
+          1단계에서 <span class="highlight">원문 단서</span>를 먼저 보고 스스로 생각해 본 뒤,<br>
+          필요하면 버튼을 눌러 <span class="highlight">해석·핵심 요약</span>과
+          <span class="highlight">교과교육 포인트</span>를 확인할 수 있습니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- RIGHT: 용의자 & 결과 -->
+    <aside class="side-panel">
+      <h2>용의자 목록</h2>
+      <p class="hint-text">
+        EduPass 컴퓨터교육과 동아리원 4명 중 한 명이 교육용 AI 파일을 옮겼다.
+        각자의 전공 역할과 평소 발언, 수업에 대한 관점을 함께 떠올려 보자.
+      </p>
+
+      <ul class="suspect-list">
+        <li class="suspect-item">
+          <input type="radio" name="suspect" value="규민" id="sus-gyumin" />
+          <label for="sus-gyumin">
+            <div class="suspect-name">규민</div>
+            <div class="suspect-role">
+              서버·네트워크 실습 관리자, 형성평가에 AI를 적극 활용하자고 주장.<br>
+              “로그는 다 말해 준다”가 입버릇. 루트 권한을 거의 독점한다.
+            </div>
+          </label>
+        </li>
+
+        <li class="suspect-item">
+          <input type="radio" name="suspect" value="근형" id="sus-geun" />
+          <label for="sus-geun">
+            <div class="suspect-name">근형</div>
+            <div class="suspect-role">
+              데이터·AI 모델링 팀, 학습격차 해소와 공정한 평가에 관심 많음.<br>
+              학생 데이터로 교육격차 줄이는 것에 진심. 암호화 활동도 좋아함.
+            </div>
+          </label>
+        </li>
+
+        <li class="suspect-item">
+          <input type="radio" name="suspect" value="민규" id="sus-mingyu" />
+          <label for="sus-mingyu">
+            <div class="suspect-name">민규</div>
+            <div class="suspect-role">
+              교육용 영상 제작자, ‘설명식 + 동영상’ 수업을 선호.<br>
+              “결국 학생은 영상 보고 배우는 거 아니야?”가 좌우명. 폴더 정리는 포기 상태.
+            </div>
+          </label>
+        </li>
+
+        <li class="suspect-item">
+          <input type="radio" name="suspect" value="재훈" id="sus-jae" />
+          <label for="sus-jae">
+            <div class="suspect-name">재훈</div>
+            <div class="suspect-role">
+              시각 자료·UI 디자이너, 학생 동기 유발과 학습 경험(UX)을 중시.<br>
+              수업 자료는 무조건 예뻐야 한다고 주장. QR·카드뉴스 장인.
+            </div>
+          </label>
+        </li>
+      </ul>
+
+      <div class="btn-row">
+        <button id="solve-btn" class="btn btn-primary">🕵️ 추리 완료</button>
+        <button id="reset-btn" class="btn btn-ghost">🔄 초기화</button>
+      </div>
+
+      <div id="result-box" class="result-box">
+        결과가 여기에 표시됩니다. <br>
+        단서를 모두 보고, 컴퓨터교육과 전공·교과교육학 감각으로
+        가장 가능성이 높은 사람을 선택해 보세요.
+      </div>
+    </aside>
+
+    <footer>
+      Made by EduPass · 컴퓨터교육과 교육용 시나리오 ·
+      정보 교과 수업·동아리·공개수업에서 자유롭게 수정하여 사용 가능합니다.
+    </footer>
+  </div>
+</div>
+
+<script>
+  // 시저 암호 변환 함수 (단서 2에서 사용)
+  function runCaesarCipher() {
+    const inputEl = document.getElementById("cipher-input");
+    const shiftEl = document.getElementById("cipher-shift");
+    const outputEl = document.getElementById("cipher-output");
+    if (!inputEl || !shiftEl || !outputEl) return;
+
+    const input = inputEl.value;
+    const shift = parseInt(shiftEl.value || "0", 10);
+    if (isNaN(shift)) {
+      outputEl.textContent = "(shift 값이 올바르지 않습니다)";
+      return;
+    }
+
+    let result = "";
+
+    for (let i = 0; i < input.length; i++) {
+      const c = input[i];
+
+      if (/[A-Z]/.test(c)) {
+        let code = c.charCodeAt(0) - 65;
+        let shifted = (code + shift) % 26;
+        if (shifted < 0) shifted += 26;
+        result += String.fromCharCode(shifted + 65);
+      } else if (/[a-z]/.test(c)) {
+        let code = c.charCodeAt(0) - 97;
+        let shifted = (code + shift) % 26;
+        if (shifted < 0) shifted += 26;
+        result += String.fromCharCode(shifted + 97);
+      } else {
+        result += c;
+      }
+    }
+
+    outputEl.textContent = result;
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const clueOutput = document.getElementById("clue-output");
+    const clueButtons = document.querySelectorAll("[data-clue]");
+    const progressLabel = document.getElementById("clue-progress");
+    const solveBtn = document.getElementById("solve-btn");
+    const resetBtn = document.getElementById("reset-btn");
+    const resultBox = document.getElementById("result-box");
+
+    const TOTAL_CLUES = 5;
+    const seenClues = new Set();
+
+    const clues = {
+      1: `
+        <h3>🖥 단서 1. 서버 접속 로그 (네트워크 실습 서버)</h3>
+
+        <div class="clue-tag">원문 로그</div>
+        <div class="code-block">
+[11/27 SERVER ACCESS LOG]
+# EduPass 정보수업 실습용 서버
+
+# 고정 IP 배정표 (네트워크 단원 수업 때 사용)
+# 192.168.0.11  → 근형 (데이터·AI 모델링)
+# 192.168.0.17  → 민규 (교육용 영상)
+# 192.168.0.19  → 재훈 (시각 자료·UI)
+# 192.168.0.24  → 규민 (서버·네트워크 관리자)   ← ★ 유일하게 루트 권한 보유
+
+22:57  192.168.0.11    LOGIN SUCCESS      # 내일 시연용 데이터셋 마지막 점검
+22:59  192.168.0.17    LOGIN SUCCESS      # 수업 오프닝 영상 재생 테스트
+23:02  192.168.0.19    LOGIN SUCCESS      # UI 테마 색깔 다시 보기
+
+--- 관리자 권한 명령 실행 기록 (root only) ---
+23:07  192.168.0.24    sudo access_granted
+23:08  192.168.0.24    FILE MOVED: ai_core.py → /server/test/tmp
+23:09  192.168.0.24    sudo directory_hide --apply
+# TODO: 시연 끝나고 원래 위치로 되돌리기
+-------------------------------------------------
+
+23:11  192.168.0.11    LOGOUT
+23:12  192.168.0.17    LOGOUT
+23:12  192.168.0.19    LOGOUT
+        </div>
+
+        <p class="hint-text">
+          힌트: <span class="highlight">고정 IP 할당표</span>와
+          <span class="highlight">sudo(관리자 권한)</span> 부분에 주목해 보세요.<br>
+          누가 파일을 옮길 수 있는 권한을 가지고 있을까요?
+        </p>
+
+        <button class="btn btn-ghost" style="margin-top:6px;"
+          onclick="document.getElementById('log-detail').style.display='block'; this.style.display='none';">
+          📌 해석 · 핵심 · 교과교육 보기
+        </button>
+
+        <div id="log-detail" style="display:none; margin-top:8px;">
+          <ul class="clue-list">
+            <li>로그에 적힌 <strong>고정 IP 표</strong>에 따르면, <strong>192.168.0.24 = 규민</strong>이다.</li>
+            <li><code>ai_core.py</code>가 이동된 시간(23:08)에 접속해 있던 IP도 192.168.0.24이다.</li>
+            <li>이동 직전(23:07)에 <code>sudo</code> 명령으로 루트 권한을 활성화했고,
+                이동 직후(23:09)에는 디렉터리를 숨기는 명령까지 썼다.</li>
+            <li>주석 <code># TODO: 시연 끝나고 원래 위치로 되돌리기</code>를 보면,
+                완전히 삭제하려 한 것이 아니라 <span class="highlight">“잠깐만 바꿔보려 했던 것”</span> 같다.</li>
+          </ul>
+
+          <div class="clue-summary">
+            <strong>이 단서가 말하는 핵심 (네트워크·운영체제 단원 관점):</strong><br>
+            <span class="highlight">교육용 AI 파일을 실제로 옮기고 숨긴 사람은 규민이다.</span><br>
+            고정 IP, sudo 기록, 파일 이동 시각, 남겨진 주석까지 모두 규민을 가리킨다.
+            <br><br>
+            <em>📌 교과교육 포인트:</em><br>
+            이 로그를 학생 활동지로 제시하고,<br>
+            ① IP-사용자 매칭하기, ② 관리자 권한의 위험성과 책임 토의하기,<br>
+            ③ “정보 윤리·보안” 성취기준과 연결해 <strong>사례 기반 토의 수업</strong>으로 확장할 수 있다.
+          </div>
+        </div>
+      `,
+      2: `
+        <h3>🔐 단서 2. 시저 암호 메모 (암호화 단원)</h3>
+
+        <div class="clue-tag">원문 암호문</div>
+        <div class="code-block">
+FDOO JBXPLQ!
+PLQJBX GRHVQ'W NQRZ.
+# NOTE: shift -3 (왼쪽으로 3칸)
+        </div>
+
+        <p class="hint-text">
+          힌트: 알파벳을 <span class="highlight">왼쪽(앞)으로 3칸</span>씩 이동시키면 평문이 됩니다.<br>
+          아래의 “시저 암호판”을 활용해 직접 변환해 보세요!
+        </p>
+
+        <div style="margin-top:10px; padding:10px; border:1px solid #2a3550; border-radius:10px; background:rgba(255,255,255,0.03);">
+          <h4 style="margin:0 0 8px;">🧮 시저 암호판 (직접 해보기)</h4>
+
+          <label style="font-size:0.8rem;">암호문 입력:</label><br>
+          <input id="cipher-input" type="text" value=""
+                 placeholder="여기에 암호문을 적어 보세요 (예: FDOO JBXPLQ!)"
+                 style="width:100%; margin-top:4px; margin-bottom:8px; padding:6px; border-radius:6px; border:1px solid #3a4568; background:#0b1020; color:#fff;">
+
+          <label style="font-size:0.8rem;">Shift 값 입력 (예: -3):</label><br>
+          <input id="cipher-shift" type="number" value=""
+                 placeholder="-3"
+                 style="width:100px; margin-top:4px; padding:6px; border-radius:6px; border:1px solid #3a4568; background:#0b1020; color:#fff;">
+
+          <button onclick="runCaesarCipher()"
+                  style="margin-left:10px; padding:6px 12px; border-radius:8px; border:none; background:#4f8cff; color:#050814; font-weight:600; cursor:pointer;">
+            변환하기
+          </button>
+
+          <div style="margin-top:10px; font-size:0.85rem;">
+            <strong>변환 결과:</strong>
+            <div id="cipher-output"
+                 style="padding:8px; min-height:30px; background:#0e1324; border-radius:6px; margin-top:4px; border:1px solid #2a3550;">
+              (여기에 결과가 표시됩니다)
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-ghost" style="margin-top:6px;"
+          onclick="document.getElementById('cipher-solution').style.display='block'; this.style.display='none';">
+          🔍 해독 결과 · 교과교육 보기
+        </button>
+
+        <div id="cipher-solution" style="display:none; margin-top:8px;">
+          <div class="clue-tag">해독 결과</div>
+          <div class="code-block">
+CALL GYUMIN!
+MINGYU DOESN'T KNOW.
+          </div>
+
+          <ul class="clue-list">
+            <li><span class="highlight">"규민에게 전화해!"</span>라는 뉘앙스의 문장이다.</li>
+            <li><span class="highlight">"민규는 모른다."</span>라는 문장으로, 민규에게 알리바이를 주고 있다.</li>
+            <li><code># shift -3 ㅋㅋ</code> 메모는
+                암호화 단원 수업에서 학생들에게 장난치듯 설명하던 말투와 비슷하다.</li>
+          </ul>
+
+          <div class="clue-summary">
+            <strong>이 단서가 말하는 핵심 (암호화 단원 관점):</strong><br>
+            이 메모를 쓴 사람은 암호를 잘 알고, 규민과 민규의 관계를 잘 안다.<br>
+            <span class="highlight">규민과 통화하라는 메시지</span>를 남기면서,
+            <span class="highlight">민규는 범인이 아닐 가능성</span>을 암시한다.
+            <br><br>
+            <em>📌 교과교육 포인트:</em><br>
+            학생들이 직접 shift 값을 조정하며 암호를 해독하게 하면,<br>
+            ① <strong>활동 중심 암호화 수업</strong>이 되고,<br>
+            ② ‘정보보안과 개인 정보 보호’ 성취기준과 연결해<br>
+               실제 메신저 암호화, 패스워드 안전성과도 자연스럽게 이어갈 수 있다.
+          </div>
+        </div>
+      `,
+      3: `
+        <h3>📱 단서 3. QR 코드 메시지 (공개 수업 활동지)</h3>
+        <div class="clue-tag">QR 스캔 시 출력된 문장</div>
+        <div class="code-block">
+"final_project" 폴더 안에는 없다.
+"test" 폴더를 뒤져 봐.
+
+# 디자인 시안 메모
+# - QR는 학생용 활동지 오른쪽 아래에 배치
+# - 스캔하면 AI 실험용 화면으로 연결
+        </div>
+        <p class="hint-text">
+          힌트: <span class="highlight">final_project</span>와
+          <span class="highlight">test</span> 폴더의 쓰임새 차이를 떠올려 보세요.<br>
+          누가 어떤 폴더를 주로 사용할까요?
+        </p>
+
+        <button class="btn btn-ghost" style="margin-top:6px;"
+          onclick="document.getElementById('qr-detail').style.display='block'; this.style.display='none';">
+          📌 해석 · 핵심 · 교과교육 보기
+        </button>
+
+        <div id="qr-detail" style="display:none; margin-top:8px;">
+          <ul class="clue-list">
+            <li>재훈은 공개 수업용 활동지에 QR을 넣어,
+                학생들이 직접 AI를 체험해 보는 활동을 설계했다.</li>
+            <li>영상팀(민규)은 늘 <code>final_최종_진짜최종_v3</code> 같은
+                <span class="highlight">final 계열 폴더</span>를 즐겨 쓴다.</li>
+            <li><code>test</code> 폴더는 개발·실습 단계에서
+                <span class="highlight">관리자 권한으로만 만지는 공간</span>이다.
+                학생 코드나 실험용 모델을 잠깐 넣어 두는 용도로 쓰인다.</li>
+          </ul>
+          <div class="clue-summary">
+            <strong>이 단서가 말하는 핵심 (수업 준비·실습 환경 관점):</strong><br>
+            파일은 영상 결과물이 들어가는 final 폴더가 아니라,
+            <span class="highlight">서버 관리자만 건드릴 수 있는 test 폴더</span>로 옮겨졌다.<br>
+            즉, 수업용 AI 모델을 바꾸려 한 사람은
+            <span class="highlight">관리자 권한을 가진 동아리원</span>이다.
+            <br><br>
+            <em>📌 교과교육 포인트:</em><br>
+            QR 활동지는 <strong>모바일·웹 기반 참여형 수업</strong>을 설계할 때 유용하다.<br>
+            ① 학생이 QR로 다양한 자료·실험 페이지에 접근하고,<br>
+            ② 교사는 이를 바탕으로 프로젝트형 수업, 플립드 러닝, 수준별 과제를 설계할 수 있다.
+          </div>
+        </div>
+      `,
+      4: `
+        <h3>🤖 단서 4. ChatGPT 대화 기록 (수업용 AI 도구 활용)</h3>
+        <div class="clue-tag">대화 원문</div>
+        <div class="code-block">
+User: 만약 누가 내 교육용 AI 파일 옮겨도 추적 못하게 하는 방법 있어?
+AI: 서버 로그 파일은 보통 서버 관리자만 수정할 수 있어요.
+User: 아… 그러면 관리자만 가능하겠네.
+
+User: 로그는 남겨 두고 싶은데,
+     선생님들 앞에서만 잠깐 다른 버전으로 보여줄 순 없을까?
+AI: test 폴더에만 별도의 모델을 두고,
+    시연이 끝나면 원래 위치로 되돌리는 방식도 있어요.
+        </div>
+        <p class="hint-text">
+          힌트: 질문 내용을 보면, 완전한 해킹이라기보다는
+          <span class="highlight">“공개 수업에서만 잠깐 다른 버전”</span>을 쓰고 싶어 하는 것처럼 보입니다.<br>
+          이런 고민을 실제로 실행할 수 있는 권한이 있는 사람은 누구일까요?
+        </p>
+
+        <button class="btn btn-ghost" style="margin-top:6px;"
+          onclick="document.getElementById('chat-detail').style.display='block'; this.style.display='none';">
+          📌 해석 · 핵심 · 교과교육 보기
+        </button>
+
+        <div id="chat-detail" style="display:none; margin-top:8px;">
+          <ul class="clue-list">
+            <li>질문의 톤은 “악의적인 해킹”보다는,
+                <span class="highlight">공개 수업에서만 잠깐 다른 버전을 잠깐 보여주려는 고민</span>에 가깝다.</li>
+            <li>AI는 분명 말한다:
+                <span class="highlight">"로그 파일은 서버 관리자만 수정할 수 있어요."</span></li>
+            <li>“관리자만 가능하겠네.”라는 반응은,
+                이미 자기에게 그러한 권한이 있다는 전제를 깔고 있는 말처럼 보인다.</li>
+          </ul>
+          <div class="clue-summary">
+            <strong>이 단서가 말하는 핵심 (AI 활용 수업 관점):</strong><br>
+            수업에서 더 “완성된 AI”를 보여주고 싶은 마음에,
+            <span class="highlight">시연용 버전을 따로 두려 했던 사람</span>이 있다.<br>
+            그리고 그런 걸 실제로 구현할 수 있는 권한이 있는 사람은
+            <span class="highlight">서버 관리자 규민</span>뿐이다.
+            <br><br>
+            <em>📌 교과교육 포인트:</em><br>
+            이 대화를 바탕으로,<br>
+            ① <strong>생성형 AI를 수업에 활용할 때의 윤리·책임</strong>,<br>
+            ② “AI가 수업을 대신하는가, 교사를 돕는가?”에 대한 토론 수업을 설계할 수 있다.<br>
+            수행평가 루브릭에 “AI 활용의 적절성·투명성” 항목을 넣어 평가와도 연결해 볼 수 있다.
+          </div>
+        </div>
+      `,
+      5: `
+        <h3>💾 단서 5. DB access_log 테이블 (학습 분석·로그 관리)</h3>
+        <div class="clue-tag">쿼리 결과</div>
+        <div class="code-block">
+-- 공개 수업용 플랫폼 DB: access_log 테이블 일부
+
+SELECT user_id, action, target, time
+FROM access_log
+WHERE time BETWEEN '2024-11-27 22:50' AND '2024-11-27 23:15'
+ORDER BY time;
+
+user_id | action  | target       | time
+--------+---------+------------- +---------------------
+geun    | VIEW    | dataset      | 2024-11-27 22:57:12
+mingyu  | VIEW    | opening_vid  | 2024-11-27 22:59:31
+jaehoon | VIEW    | ui_theme     | 2024-11-27 23:02:08
+
+gyumin  | UPDATE  | ai_core_meta | 2024-11-27 23:07:45  ← ★
+gyumin  | MOVE    | ai_core      | 2024-11-27 23:08:03  ← ★
+gyumin  | UPDATE  | ai_core_meta | 2024-11-27 23:09:10  ← ★
+
+-- 주석: VIEW는 조회, UPDATE/MOVE는 실제 내용을 바꾸는 작업이다.
+        </div>
+
+        <p class="hint-text">
+          힌트: 데이터베이스 로그는 <span class="highlight">“누가, 무엇을, 어떻게 바꿨는지”</span>를 남깁니다.<br>
+          VIEW / UPDATE / MOVE의 차이를 생각해 보세요.
+        </p>
+
+        <button class="btn btn-ghost" style="margin-top:6px;"
+          onclick="document.getElementById('db-detail').style.display='block'; this.style.display='none';">
+          📌 해석 · 핵심 · 교과교육 보기
+        </button>
+
+        <div id="db-detail" style="display:none; margin-top:8px;">
+          <ul class="clue-list">
+            <li>근형, 민규, 재훈은 모두 <code>VIEW</code>만 수행했다. 즉, <span class="highlight">데이터 조회만</span> 했다.</li>
+            <li>반대로 규민은 <code>UPDATE</code>와 <code>MOVE</code>를 수행해,
+                <span class="highlight">실제 테이블의 데이터와 파일 메타 정보를 수정</span>했다.</li>
+            <li><code>ai_core_meta</code>는 AI 엔진의 버전·경로·상태 등을 기록하는 메타데이터 테이블이다.
+                여기의 UPDATE는 <span class="highlight">AI 파일의 위치나 버전을 바꿨다</span>는 것을 의미한다.</li>
+          </ul>
+
+          <div class="clue-summary">
+            <strong>이 단서가 말하는 핵심 (데이터베이스·학습 로그 관점):</strong><br>
+            DB 로그를 보면, <span class="highlight">실제로 AI 코어 관련 데이터를 수정한 사람은 규민</span>이다.<br>
+            다른 동아리원은 조회(VIEW)만 했지만, 규민만이 UPDATE/MOVE를 통해<br>
+            <span class="highlight">파일 위치와 메타데이터를 동시에 바꾼 흔적</span>을 남겼다.
+            <br><br>
+            <em>📌 교과교육 포인트:</em><br>
+            이 테이블을 활용해 학생에게<br>
+            ① <strong>SELECT / UPDATE / DELETE / INSERT / VIEW</strong>의 차이를 이해시키고,<br>
+            ② 학습 분석(learning analytics)과 로그 데이터가<br>
+               <strong>평가·피드백·보안</strong>에 어떻게 활용되는지 토의할 수 있다.<br>
+            또한, DB 로그를 기반으로 하는 추리 활동은<br>
+            성취기준 중 <strong>“데이터를 수집·분석하여 정보를 해석하고 문제를 해결한다”</strong>는 요소와도 연결된다.
+          </div>
+        </div>
+      `
+    };
+
+    function updateProgress() {
+      progressLabel.textContent = `발견한 단서: ${seenClues.size} / ${TOTAL_CLUES}`;
+    }
+
+    function clearActiveButtons() {
+      clueButtons.forEach(btn => btn.classList.remove("active"));
+    }
+
+    clueButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.clue;
+        seenClues.add(id);
+        updateProgress();
+        clearActiveButtons();
+        btn.classList.add("active");
+        clueOutput.innerHTML = clues[id];
+      });
+    });
+
+    solveBtn.addEventListener("click", () => {
+      const selected = document.querySelector("input[name='suspect']:checked");
+
+      if (!selected) {
+        resultBox.className = "result-box";
+        resultBox.innerHTML = "❗ 먼저 용의자를 선택하세요!";
+        return;
+      }
+
+      const pick = selected.value;
+
+      if (pick === "규민") {
+        resultBox.className = "result-box result-success";
+        resultBox.innerHTML =
+          "🎉 <strong>정답!</strong><br>" +
+          "1) 서버 로그에서 고정 IP(192.168.0.24), sudo 기록, 숨김 명령, 주석까지 모두 규민을 가리키고,<br>" +
+          "2) QR 단서의 test 폴더, ChatGPT 대화의 '관리자만 가능'이라는 말도 모두 서버 관리자를 지목합니다.<br>" +
+          "3) 시저 암호 메모에서도 규민에게 연락하라는 메시지가 숨겨져 있고, 민규는 오히려 알리바이를 얻습니다.<br>" +
+          "4) DB access_log에서도 규민만이 ai_core 관련 UPDATE/MOVE를 수행한 것이 드러납니다.<br><br>" +
+          "규민은 악의적인 해커라기보다는, 공개 수업에서 더 멋진 AI를 보여주고 싶었던 조급한 예비 교사였을지도 모릅니다.<br>" +
+          "그래도 다음부터는 동료들과 상의하고, 깃에 커밋한 뒤에 실험하기로 약속해야겠죠? 👩‍🏫👨‍🏫";
+      } else {
+        resultBox.className = "result-box result-fail";
+        resultBox.innerHTML =
+          "❌ <strong>오답!</strong><br>" +
+          "네트워크(고정 IP), 운영체제 권한(sudo), 암호화(시저 암호), 수업용 QR, ChatGPT 대화, DB 로그를 모두 다시 연결해 보세요.<br>" +
+          "“공개 수업에서만 잠깐 다른 AI를 보여주고 싶었던 사람”이 누구인지, 또 그 교육적 의도가 무엇이었는지 떠올려 보면 정답에 가까워질 수 있습니다.";
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      seenClues.clear();
+      updateProgress();
+      clearActiveButtons();
+      clueOutput.innerHTML = `
+        <h3>☝️ 단서를 선택해 내용을 확인하세요.</h3>
+        <p class="hint-text">
+          1단계에서 <span class="highlight">원문 단서</span>를 먼저 보고 스스로 생각해 본 뒤,<br>
+          필요하면 버튼을 눌러 <span class="highlight">해석·핵심 요약</span>과
+          <span class="highlight">교과교육 포인트</span>를 확인할 수 있습니다.
+        </p>
+      `;
+      resultBox.className = "result-box";
+      resultBox.innerHTML =
+        "결과가 여기에 표시됩니다. <br>단서를 모두 보고, 컴퓨터교육과 전공·교과교육학 감각으로 가장 가능성이 높은 사람을 선택해 보세요.";
+      document.querySelectorAll("input[name='suspect']").forEach(r => r.checked = false);
+    });
+
+    updateProgress();
+  });
+</script>
+
+</body>
+</html>
